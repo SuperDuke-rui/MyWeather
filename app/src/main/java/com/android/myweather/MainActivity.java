@@ -3,16 +3,25 @@ package com.android.myweather;
 import android.Manifest;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 import com.android.myweather.utils.ToastUtils;
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.tbruyelle.rxpermissions2.RxPermissions;
+
+import java.io.IOException;
 
 /**
  * @author 29340
@@ -117,7 +126,39 @@ public class MainActivity extends AppCompatActivity {
             String district = bdLocation.getDistrict(); //获取区县
             String street = bdLocation.getStreet(); //获取街道信息
             String locationDescribe = bdLocation.getLocationDescribe(); //获取位置描述信息
+
+            //设置文本显示
             tvAddressDetail.setText(address);
+
+            //获取今天的天气数据
+            getTodayWeather(district);
         }
+    }
+
+    /**
+     * 获取今天的天气数据
+     */
+    private void getTodayWeather(String district) {
+        //使用Get异步请求
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                //拼接地址访问
+                .url("https://free-api.heweather.net/s6/weather/now?key=8d902bea490f4ef8b32e589adc780a3d&location=" + district)
+                .build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    Log.d("wangrui", "获取数据成功");
+                    Log.d("wangrui", "response.code()==" + response.code());
+                    Log.d("wangrui", "response.body().string()==" + response.body().string());
+                }
+            }
+        });
     }
 }
