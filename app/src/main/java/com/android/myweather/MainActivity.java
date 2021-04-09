@@ -6,28 +6,59 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-
+import com.android.mvplibrary.mvp.MvpActivity;
+import com.android.myweather.bean.TodayResponse;
+import com.android.myweather.contract.WeatherContract;
 import com.android.myweather.utils.ToastUtils;
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.tbruyelle.rxpermissions2.RxPermissions;
+import okhttp3.*;
+import retrofit2.Response;
 
 import java.io.IOException;
 
 /**
  * @author 29340
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends MvpActivity<WeatherContract.WeatherPresenter> implements WeatherContract.IWeatherView{
 
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
+    /**
+     * 天气情况
+     */
+    @BindView(R.id.tv_info)
+    TextView tvInfo;
+
+    /**
+     * 温度
+     */
+    @BindView(R.id.tv_temperature)
+    TextView tvTemperature;
+
+    /**
+     * 最高温和最低温
+     */
+    @BindView(R.id.tv_low_height)
+    TextView tvLowHeight;
+
+    /**
+     * 城市
+     */
+    @BindView(R.id.tv_city)
+    TextView tvCity;
+
+    /**
+     * 最近更新时间
+     */
+    @BindView(R.id.tv_old_time)
+    TextView tvOldTime;
     /**
      * 权限请求框架
      */
@@ -39,15 +70,12 @@ public class MainActivity extends AppCompatActivity {
     public LocationClient mLocationClient = null;
     private MyLocationListener myListener = new MyLocationListener();
 
-    @BindView(R.id.tv_address_detail)
-    TextView tvAddressDetail;
-
+    /**
+     * 数据初始化 主线程，onCreate方法可以删除
+     * @param savedInstanceState
+     */
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        ButterKnife.bind(this);
-
+    public void initData(Bundle savedInstanceState) {
         //实例化权限请求框架
         rxPermissions = new RxPermissions(this);
         //权限判断
@@ -55,9 +83,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * 绑定布局文件
+     * @return
+     */
+    @Override
+    public int getLayoutId() {
+        return R.layout.activity_main;
+    }
+
+    /**
+     * 绑定Presenter
+     * @return
+     */
+    @Override
+    protected WeatherContract.WeatherPresenter createPresent() {
+        return new WeatherContract.WeatherPresenter();
+    }
+
+    /**
      * 权限判断
      */
-    private void permissionVersion(){
+    private void permissionVersion() {
         //6.0及以上
         if (Build.VERSION.SDK_INT >= 23) {
             //动态权限申请
@@ -71,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * 动态权限申请
      */
-    private void permissionRequest(){
+    private void permissionRequest() {
         rxPermissions.request(Manifest.permission.ACCESS_FINE_LOCATION)
                 .subscribe(granted -> {
                     if (granted) {
@@ -112,53 +158,37 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onReceiveLocation(BDLocation bdLocation) {
-            double latitude = bdLocation.getLatitude(); //获取维度信息
-            double longitude = bdLocation.getLongitude(); //获取经度信息
-            float radius = bdLocation.getRadius(); //获取定位精度，默认值为0.0f
-            //获取经纬度坐标类型，以LocationClientOption中设置过的坐标类型为准
-            String coorType = bdLocation.getCoorType();
-            //获取定位类型、定位错误返回码
-            int errorCode = bdLocation.getLocType();
-            String address = bdLocation.getAddrStr(); //获取详细地址信息
-            String country = bdLocation.getCountry(); //获取国家
-            String province = bdLocation.getProvince(); //获取省份
-            String city = bdLocation.getCity(); //获取城市
             String district = bdLocation.getDistrict(); //获取区县
-            String street = bdLocation.getStreet(); //获取街道信息
-            String locationDescribe = bdLocation.getLocationDescribe(); //获取位置描述信息
-
-            //设置文本显示
-            tvAddressDetail.setText(address);
-
             //获取今天的天气数据
-            getTodayWeather(district);
+            mPresent.todayWeather(context, district);
         }
     }
 
     /**
-     * 获取今天的天气数据
+     * 查询当前天气，请求成功后的数据返回
      */
-    private void getTodayWeather(String district) {
-        //使用Get异步请求
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder()
-                //拼接地址访问
-                .url("https://free-api.heweather.net/s6/weather/now?key=8d902bea490f4ef8b32e589adc780a3d&location=" + district)
-                .build();
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
+    @Override
+    public void getTodayWeatherResult(Response<TodayResponse> response) {
+        //数据返回后关闭定位
+        mLocationClient.stop();
+        if (response.body().getHeWeather6().get(0).getBasic() != null) {
+            //显示数据
+            tvTemperature.setText(response.body().getHeWeather6().get(0).getNow().getTmp());
+            tvCity.setText(response.body().getHeWeather6().get(0).getBasic().getLocation());
+            tvInfo.setText(response.body().getHeWeather6().get(0).getNow().getCond_txt());
+            tvOldTime.setText(response.body().getHeWeather6().get(0).getUpdate().getLoc());
+            tvLowHeight.setText(response.body().getHeWeather6().get(0).getNow().getFl() + "℃/" +
+                    response.body().getHeWeather6().get(0).getNow().getHum() + "℃");
+        } else {
+            ToastUtils.showShortToast(context, response.body().getHeWeather6().get(0).getStatus());
+        }
+    }
 
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    Log.d("wangrui", "获取数据成功");
-                    Log.d("wangrui", "response.code()==" + response.code());
-                    Log.d("wangrui", "response.body().string()==" + response.body().string());
-                }
-            }
-        });
+    /**
+     * 数据请求失败返回
+     */
+    @Override
+    public void getDataFailed() {
+        ToastUtils.showShortToast(context, "网络异常");
     }
 }

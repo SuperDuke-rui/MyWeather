@@ -1,9 +1,15 @@
 package com.android.myweather.bean;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class TodayResponse {
-    //生成实体Bean
+/**
+ * 生成实体类
+ * @author 29340
+ */
+public class TodayResponse implements Serializable {
+
+
     private List<HeWeather6Bean> HeWeather6;
 
     public List<HeWeather6Bean> getHeWeather6() {
@@ -14,12 +20,12 @@ public class TodayResponse {
         this.HeWeather6 = HeWeather6;
     }
 
-    public static class HeWeather6Bean {
+    public static class HeWeather6Bean implements Serializable {
         /**
-         * basic : {"cid":"CN101280601","location":"深圳","parent_city":"深圳","admin_area":"广东","cnty":"中国","lat":"22.54700089","lon":"114.08594513","tz":"+8.00"}
-         * update : {"loc":"2020-04-01 15:45","utc":"2020-04-01 07:45"}
+         * basic : {"cid":"CN101020600","location":"浦东新区","parent_city":"上海","admin_area":"上海市","cnty":"中国","lat":"31.24594307","lon":"121.56770325","tz":"+8.00"}
+         * update : {"loc":"2021-04-09 14:47","utc":"2021-04-09 06:47"}
          * status : ok
-         * now : {"cloud":"100","cond_code":"104","cond_txt":"阴","fl":"18","hum":"82","pcpn":"0.0","pres":"1006","tmp":"18","vis":"16","wind_deg":"79","wind_dir":"东北风","wind_sc":"2","wind_spd":"9"}
+         * now : {"cloud":"0","cond_code":"100","cond_txt":"晴","fl":"14","hum":"30","pcpn":"0.0","pres":"1030","tmp":"18","vis":"30","wind_deg":"135","wind_dir":"东南风","wind_sc":"3","wind_spd":"18"}
          */
 
         private BasicBean basic;
@@ -59,15 +65,15 @@ public class TodayResponse {
             this.now = now;
         }
 
-        public static class BasicBean {
+        public static class BasicBean implements Serializable {
             /**
-             * cid : CN101280601
-             * location : 深圳
-             * parent_city : 深圳
-             * admin_area : 广东
+             * cid : CN101020600
+             * location : 浦东新区
+             * parent_city : 上海
+             * admin_area : 上海市
              * cnty : 中国
-             * lat : 22.54700089
-             * lon : 114.08594513
+             * lat : 31.24594307
+             * lon : 121.56770325
              * tz : +8.00
              */
 
@@ -145,10 +151,10 @@ public class TodayResponse {
             }
         }
 
-        public static class UpdateBean {
+        public static class UpdateBean implements Serializable {
             /**
-             * loc : 2020-04-01 15:45
-             * utc : 2020-04-01 07:45
+             * loc : 2021-04-09 14:47
+             * utc : 2021-04-09 06:47
              */
 
             private String loc;
@@ -171,21 +177,21 @@ public class TodayResponse {
             }
         }
 
-        public static class NowBean {
+        public static class NowBean implements Serializable {
             /**
-             * cloud : 100
-             * cond_code : 104
-             * cond_txt : 阴
-             * fl : 18
-             * hum : 82
+             * cloud : 0
+             * cond_code : 100
+             * cond_txt : 晴
+             * fl : 14
+             * hum : 30
              * pcpn : 0.0
-             * pres : 1006
+             * pres : 1030
              * tmp : 18
-             * vis : 16
-             * wind_deg : 79
-             * wind_dir : 东北风
-             * wind_sc : 2
-             * wind_spd : 9
+             * vis : 30
+             * wind_deg : 135
+             * wind_dir : 东南风
+             * wind_sc : 3
+             * wind_spd : 18
              */
 
             private String cloud;
@@ -307,7 +313,5 @@ public class TodayResponse {
             }
         }
     }
-
-
 }
 
