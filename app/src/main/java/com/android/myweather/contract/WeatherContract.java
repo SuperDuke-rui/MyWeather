@@ -6,7 +6,9 @@ import com.android.mvplibrary.base.BaseView;
 import com.android.mvplibrary.net.NetCallBack;
 import com.android.mvplibrary.net.ServiceGenerator;
 import com.android.myweather.api.ApiService;
+import com.android.myweather.bean.LifeStyleResponse;
 import com.android.myweather.bean.TodayResponse;
+import com.android.myweather.bean.WeatherForecastResponse;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -45,14 +47,74 @@ public class WeatherContract {
                 }
             });
         }
+
+        /**
+         * 天气预报
+         * @param context
+         * @param location
+         */
+        public void weatherForecast(final Context context, String location) {
+            //得到构建之后的网络请求服务，这里的地址已经拼接完成，只差一个location了
+            ApiService service = ServiceGenerator.createService(ApiService.class);
+            service.getWeatherForecast(location).enqueue(new NetCallBack<WeatherForecastResponse>() {
+                @Override
+                public void onSuccess(Call<WeatherForecastResponse> call, Response<WeatherForecastResponse> response) {
+                    if (getView() != null) {
+                        getView().getWeatherForecastResult(response);
+                    }
+                }
+
+                @Override
+                public void onFailed() {
+                    if (getView() != null) {
+                        getView().getDataFailed();
+                    }
+                }
+            });
+        }
+
+        public void lifeStyle(final Context context, String location) {
+            ApiService service = ServiceGenerator.createService(ApiService.class);
+            service.getLifeStyle(location).enqueue(new NetCallBack<LifeStyleResponse>() {
+                @Override
+                public void onSuccess(Call<LifeStyleResponse> call, Response<LifeStyleResponse> response) {
+                    if (getView()!=null) {
+                        getView().getLifeStyleResult(response);
+                    }
+                }
+
+                @Override
+                public void onFailed() {
+                    if (getView() != null) {
+                        getView().getDataFailed();
+                    }
+                }
+            });
+        }
     }
 
 
     public interface IWeatherView extends BaseView {
-        //将数据放入实体
+        /**
+         * 将数据放入实体
+         * @param response
+         */
         void getTodayWeatherResult(Response<TodayResponse> response);
 
-        //错误返回
+        /**
+         * 查询天气预报的数据返回
+         * @param response
+         */
+        void getWeatherForecastResult(Response<WeatherForecastResponse> response);
+
+        /**
+         * 查询生活指数的数据返回
+         */
+        void getLifeStyleResult(Response<LifeStyleResponse> response);
+
+        /**
+         * 错误返回
+         */
         void getDataFailed();
     }
 }

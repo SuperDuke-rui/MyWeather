@@ -1,6 +1,9 @@
 package com.android.myweather.api;
 
+import com.android.myweather.bean.LifeStyleResponse;
 import com.android.myweather.bean.TodayResponse;
+import com.android.myweather.bean.WeatherForecastResponse;
+
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
@@ -27,4 +30,18 @@ public interface ApiService {
      */
     @GET("/s6/weather/now?key=8d902bea490f4ef8b32e589adc780a3d")
     Call<TodayResponse> getTodayWeather(@Query("location") String location);
+
+    /**
+     * 未来三天的天气预报
+     * https://free-api.heweather.net/s6/weather/forecast?key=3086e91d66c04ce588a7f538f917c7f4&location=浦东新区
+     */
+    @GET("/s6/weather/forecast?key=3086e91d66c04ce588a7f538f917c7f4")
+    Call<WeatherForecastResponse> getWeatherForecast(@Query("location") String location);
+
+    /**
+     * 生活指数
+     * https://free-api.heweather.net/s6/weather/lifestyle?key=3086e91d66c04ce588a7f538f917c7f4&location=浦东新区
+     */
+    @GET("/s6/weather/lifestyle?key=3086e91d66c04ce588a7f538f917c7f4")
+    Call<LifeStyleResponse> getLifeStyle(@Query("location") String location);
 }

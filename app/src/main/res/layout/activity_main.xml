@@ -38,74 +38,228 @@
                         android:textSize="16sp"
                         android:textColor="#FFF"
                         android:text="城市天气" />
+
+                <!-- 切换城市图标 -->
+                <Button
+                        android:id="@+id/btn_city_select"
+                        android:layout_gravity="right"
+                        android:background="@drawable/ic_location"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginRight="@dimen/dp_10"
+                        android:layout_width="30dp"
+                        android:layout_height="40dp"/>
+
             </androidx.appcompat.widget.Toolbar>
 
-            <!--天气和所在城市 -->
-            <LinearLayout
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-                <!--天气状况-->
-                <TextView
-                        android:paddingLeft="16dp"
-                        android:paddingTop="12dp"
-                        android:id="@+id/tv_info"
-                        android:textColor="#FFF"
-                        android:textSize="18sp"
-                        android:gravity="center"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"/>
-                <!--温度-->
+            <androidx.core.widget.NestedScrollView
+                    android:overScrollMode="never"
+                    android:layout_height="match_parent"
+                    android:layout_width="match_parent">
+                <!--天气和所在城市 -->
                 <LinearLayout
-                        android:gravity="top|center_horizontal"
-                        android:layout_marginTop="20dp"
-                        android:orientation="horizontal"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                        android:layout_height="match_parent">
+                    <!--天气状况-->
                     <TextView
-                            android:id="@+id/tv_temperature"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
+                            android:paddingLeft="16dp"
+                            android:paddingTop="12dp"
+                            android:id="@+id/tv_info"
                             android:textColor="#FFF"
-                            android:textSize="60sp" />
+                            android:textSize="18sp"
+                            android:gravity="center"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
+                    <!--温度-->
+                    <LinearLayout
+                            android:gravity="top|center_horizontal"
+                            android:layout_marginTop="20dp"
+                            android:orientation="horizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+                        <TextView
+                                android:id="@+id/tv_temperature"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textColor="#FFF"
+                                android:textSize="60sp" />
+                        <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:layout_marginTop="5dp"
+                                android:text="℃"
+                                android:textColor="#FFF"
+                                android:textSize="28sp" />
+                    </LinearLayout>
+
+                    <!--最高温和最低温-->
                     <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:text="℃"
+                            android:layout_marginTop="12dp"
+                            android:id="@+id/tv_low_height"
                             android:textColor="#FFF"
-                            android:textSize="24sp" />
+                            android:textSize="@dimen/sp_14"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                    <!--城市-->
+                    <TextView
+                            android:layout_marginTop="20dp"
+                            android:id="@+id/tv_city"
+                            android:textColor="#FFF"
+                            android:text="城市"
+                            android:textSize="20sp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                    <!--上一次更新时间-->
+                    <TextView
+                            android:layout_marginTop="8dp"
+                            android:id="@+id/tv_old_time"
+                            android:textColor="#FFF"
+                            android:text="上次更新时间："
+                            android:textSize="@dimen/sp_12"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                    <!-- 显示天气预报数据 -->
+                    <androidx.recyclerview.widget.RecyclerView
+                            android:layout_marginTop="20dp"
+                            android:id="@+id/weatherForecast_view"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
+
+                    <!-- 风力展示 -->
+                    <LinearLayout
+                            android:orientation="horizontal"
+                            android:padding="20dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" >
+                        <RelativeLayout
+                                android:id="@+id/rl_wind"
+                                android:layout_width="130dp"
+                                android:layout_height="120dp">
+                            <!-- 大风车 -->
+                            <com.android.mvplibrary.view.WhiteWindmills
+                                android:id="@+id/ww_big"
+                                android:layout_width="100dp"
+                                android:layout_height="120dp" />
+
+                            <!-- 小风车 -->
+                            <com.android.mvplibrary.view.WhiteWindmills
+                                    android:id="@+id/ww_small"
+                                    android:layout_width="50dp"
+                                    android:layout_height="60dp"
+                                    android:layout_alignParentBottom="true"
+                                    android:layout_alignParentRight="true"/>
+
+                        </RelativeLayout>
+
+                        <LinearLayout
+                                android:gravity="center"
+                                android:orientation="vertical"
+                                android:layout_weight="1"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent">
+                            <!-- 风向 -->
+                            <TextView
+                                    android:id="@+id/tv_wind_direction"
+                                    android:textColor="#FFF"
+                                    android:textSize="@dimen/sp_14"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content" />
+
+                            <!-- 风力 -->
+                            <TextView
+                                    android:layout_marginTop="20dp"
+                                    android:id="@+id/tv_wind_power"
+                                    android:textColor="#FFF"
+                                    android:textSize="@dimen/sp_14"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content" />
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <!-- 用于展示生活指数的布局 -->
+                    <LinearLayout
+                            android:orientation="vertical"
+                            android:padding="20dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+                        <!-- 标题 -->
+                        <TextView
+                                android:textSize="18sp"
+                                android:textColor="#FFF"
+                                android:text="生活建议"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+                        <!-- 舒适度 -->
+                        <TextView
+                                android:id="@+id/tv_comfort"
+                                android:layout_marginTop="16sp"
+                                android:text="舒适度："
+                                android:textSize="14sp"
+                                android:textColor="#FFF"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+                        <!-- 旅游指数 -->
+                        <TextView
+                                android:id="@+id/tv_travel"
+                                android:layout_marginTop="16sp"
+                                android:text="旅游指数："
+                                android:textSize="14sp"
+                                android:textColor="#FFF"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" />
+                        <!-- 运动指数 -->
+                        <TextView
+                                android:id="@+id/tv_sport"
+                                android:layout_marginTop="16sp"
+                                android:text="运动指数："
+                                android:textSize="14sp"
+                                android:textColor="#FFF"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" />
+                        <!-- 洗车指数 -->
+                        <TextView
+                                android:id="@+id/tv_carWash"
+                                android:layout_marginTop="16sp"
+                                android:text="洗车指数："
+                                android:textSize="14sp"
+                                android:textColor="#FFF"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" />
+                        <!-- 空气指数 -->
+                        <TextView
+                                android:id="@+id/tv_air"
+                                android:layout_marginTop="16sp"
+                                android:text="空气指数："
+                                android:textSize="14sp"
+                                android:textColor="#FFF"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" />
+                        <!-- 穿衣指数 -->
+                        <TextView
+                                android:id="@+id/tv_wear"
+                                android:layout_marginTop="16sp"
+                                android:text="穿衣指数："
+                                android:textSize="14sp"
+                                android:textColor="#FFF"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" />
+                        <!-- 感冒指数 -->
+                        <TextView
+                                android:id="@+id/tv_flu"
+                                android:layout_marginTop="16sp"
+                                android:text="感冒指数："
+                                android:textSize="14sp"
+                                android:textColor="#FFF"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" />
+                    </LinearLayout>
+
+
                 </LinearLayout>
-
-                <!--最高温和最低温-->
-                <TextView
-                        android:layout_marginTop="12dp"
-                        android:id="@+id/tv_low_height"
-                        android:textColor="#FFF"
-                        android:textSize="@dimen/sp_14"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
-                <!--城市-->
-                <TextView
-                        android:layout_marginTop="20dp"
-                        android:id="@+id/tv_city"
-                        android:textColor="#FFF"
-                        android:text="城市"
-                        android:textSize="20sp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
-                <!--上一次更新时间-->
-                <TextView
-                        android:layout_marginTop="8dp"
-                        android:id="@+id/tv_old_time"
-                        android:textColor="#FFF"
-                        android:text="上次更新时间："
-                        android:textSize="@dimen/sp_12"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
-
-            </LinearLayout>
+            </androidx.core.widget.NestedScrollView>
         </LinearLayout>
     </RelativeLayout>
 </LinearLayout>

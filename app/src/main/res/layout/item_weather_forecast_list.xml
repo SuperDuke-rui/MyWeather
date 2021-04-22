@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/sp_12">
+        <!--日期-->
+        <TextView
+                android:id="@+id/tv_date"
+                android:text=""
+                android:textSize="@dimen/sp_14"
+                android:textColor="#FFF"
+                android:gravity="center"
+                android:layout_gravity="center_vertical"
+                android:layout_margin="5dp"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"/>
+
+        <!--天气描述-->
+        <TextView
+                android:id="@+id/tv_info"
+                android:text=""
+                android:textSize="@dimen/sp_14"
+                android:textColor="#FFF"
+                android:gravity="center"
+                android:layout_gravity="center_vertical"
+                android:layout_margin="5dp"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"/>
+
+        <!--最高和最低气温-->
+        <TextView
+                android:id="@+id/tv_low_and_height"
+                android:text=""
+                android:gravity="center"
+                android:textSize="@dimen/sp_14"
+                android:textColor="#FFF"
+                android:layout_gravity="center_vertical"
+                android:layout_margin="5dp"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"/>
+
+
+
+</LinearLayout>

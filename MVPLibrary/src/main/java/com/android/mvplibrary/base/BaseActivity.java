@@ -1,7 +1,10 @@
 package com.android.mvplibrary.base;
 
 import android.app.Activity;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import butterknife.Unbinder;
@@ -17,7 +20,6 @@ import com.android.mvplibrary.kit.KnifeKit;
 public abstract class BaseActivity extends AppCompatActivity implements UiCallBack {
 
     protected Activity context;
-    private Unbinder unbinder;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -28,7 +30,13 @@ public abstract class BaseActivity extends AppCompatActivity implements UiCallBa
         BaseApplication.getActivityManager().addActivity(this);
         if (getLayoutId() > 0) {
             setContentView(getLayoutId());
-            unbinder = KnifeKit.bind(this);
+            Unbinder unbinder = KnifeKit.bind(this);
+        }
+
+        if (Build.VERSION.SDK_INT >= 21) {
+            View decorView = getWindow().getDecorView();
+            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+            getWindow().setStatusBarColor(Color.TRANSPARENT);
         }
 
         initData(savedInstanceState);
