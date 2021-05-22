@@ -1,9 +1,14 @@
 package com.android.myweather;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -14,19 +19,34 @@ import butterknife.OnClick;
 import com.android.mvplibrary.mvp.MvpActivity;
 import com.android.mvplibrary.utils.ObjectUtils;
 import com.android.mvplibrary.view.WhiteWindmills;
+import com.android.myweather.adapter.AreaAdapter;
+import com.android.myweather.adapter.CityAdapter;
+import com.android.myweather.adapter.ProvinceAdapter;
 import com.android.myweather.adapter.WeatherForecastAdapter;
+import com.android.myweather.bean.CityResponse;
 import com.android.myweather.bean.LifeStyleResponse;
 import com.android.myweather.bean.TodayResponse;
 import com.android.myweather.bean.WeatherForecastResponse;
 import com.android.myweather.contract.WeatherContract;
+import com.android.myweather.utils.LiWindow;
 import com.android.myweather.utils.ToastUtils;
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
+import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.tbruyelle.rxpermissions2.RxPermissions;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import retrofit2.Response;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -146,10 +166,178 @@ public class MainActivity extends MvpActivity<WeatherContract.WeatherPresenter> 
     @BindView(R.id.btn_city_select)
     Button btnCitySelect;
 
-    @OnClick(R.id.btn_city_select)
-    public void onViewClicked() {
+    /**
+     * 城市弹窗
+     */
+    private void showCityWindow() {
+        provinceList = new ArrayList<>();
+        citylist = new ArrayList<>();
+        arealist = new ArrayList<>();
+        list = new ArrayList<>();
+        liWindow = new LiWindow(context);
+        final View view = LayoutInflater.from(context).inflate(R.layout.window_city_list, null);
+        ImageView areaBack = (ImageView) view.findViewById(R.id.iv_back_area);
+        ImageView cityBack = (ImageView) view.findViewById(R.id.iv_back_city);
+        TextView windowTitle = (TextView) view.findViewById(R.id.tv_title);
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rv);
+        liWindow.showRightPopupWindow(view);
+        initCityData(recyclerView,areaBack,cityBack,windowTitle);//加载城市列表数据
+    }
+
+    /**
+     * 省市县数据渲染
+     * @param recyclerView  列表
+     * @param areaBack 区县返回
+     * @param cityBack 市返回
+     * @param windowTitle  窗口标题
+     */
+    private void initCityData(RecyclerView recyclerView,ImageView areaBack,ImageView cityBack,TextView windowTitle) {
+        //初始化省数据 读取省数据并显示到列表中
+        try {
+            InputStream inputStream = getResources().getAssets().open("City.txt");//读取数据
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+            StringBuffer stringBuffer = new StringBuffer();
+            String lines = bufferedReader.readLine();
+            while (lines != null) {
+                stringBuffer.append(lines);
+                lines = bufferedReader.readLine();
+            }
+
+            final JSONArray Data = new JSONArray(stringBuffer.toString());
+            //循环这个文件数组、获取数组中每个省对象的名字
+            for (int i = 0; i < Data.length(); i++) {
+                JSONObject provinceJsonObject = Data.getJSONObject(i);
+                String provinceName = provinceJsonObject.getString("name");
+                CityResponse response = new CityResponse();
+                response.setName(provinceName);
+                provinceList.add(response);
+            }
+
+            //定义省份显示适配器
+            provinceAdapter = new ProvinceAdapter(R.layout.item_city_list, provinceList);
+            LinearLayoutManager manager = new LinearLayoutManager(context);
+            recyclerView.setLayoutManager(manager);
+            recyclerView.setAdapter(provinceAdapter);
+            provinceAdapter.notifyDataSetChanged();
+            provinceAdapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
+                @Override
+                public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
+                    try {
+                        //返回上一级数据
+                        cityBack.setVisibility(View.VISIBLE);
+                        cityBack.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                recyclerView.setAdapter(provinceAdapter);
+                                provinceAdapter.notifyDataSetChanged();
+                                cityBack.setVisibility(View.GONE);
+                                windowTitle.setText("中国");
+                            }
+                        });
+
+                        //根据当前位置的省份所在的数组位置、获取城市的数组
+                        JSONObject provinceObject = Data.getJSONObject(position);
+                        windowTitle.setText(provinceList.get(position).getName());
+                        provinceTitle = provinceList.get(position).getName();
+                        final JSONArray cityArray = provinceObject.getJSONArray("city");
+
+                        //更新列表数据
+                        if (citylist != null) {
+                            citylist.clear();
+                        }
+
+                        for (int i = 0; i < cityArray.length(); i++) {
+                            JSONObject cityObj = cityArray.getJSONObject(i);
+                            String cityName = cityObj.getString("name");
+                            CityResponse.CityBean response = new CityResponse.CityBean();
+                            response.setName(cityName);
+                            citylist.add(response);
+                        }
+
+                        cityAdapter = new CityAdapter(R.layout.item_city_list, citylist);
+                        LinearLayoutManager manager1 = new LinearLayoutManager(context);
+                        recyclerView.setLayoutManager(manager1);
+                        recyclerView.setAdapter(cityAdapter);
+                        cityAdapter.notifyDataSetChanged();
+
+                        cityAdapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
+                            @Override
+                            public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
+                                try {
+                                    //返回上一级数据
+                                    areaBack.setVisibility(View.VISIBLE);
+                                    areaBack.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            recyclerView.setAdapter(cityAdapter);
+                                            cityAdapter.notifyDataSetChanged();
+                                            areaBack.setVisibility(View.GONE);
+                                            windowTitle.setText(provinceTitle);
+                                            arealist.clear();
+                                        }
+                                    });
+                                    //根据当前城市数组位置 获取地区数据
+                                    windowTitle.setText(citylist.get(position).getName());
+                                    JSONObject cityJsonObj = cityArray.getJSONObject(position);
+                                    JSONArray areaJsonArray = cityJsonObj.getJSONArray("area");
+                                    if (arealist != null) {
+                                        arealist.clear();
+                                    }
+                                    if(list != null){
+                                        list.clear();
+                                    }
+                                    for (int i = 0; i < areaJsonArray.length(); i++) {
+                                        list.add(areaJsonArray.getString(i));
+                                    }
+                                    Log.i("list", list.toString());
+                                    for (int j = 0; j < list.size(); j++) {
+                                        CityResponse.CityBean.AreaBean response = new CityResponse.CityBean.AreaBean();
+                                        response.setName(list.get(j).toString());
+                                        arealist.add(response);
+                                    }
+                                    areaAdapter = new AreaAdapter(R.layout.item_city_list, arealist);
+                                    LinearLayoutManager manager2 = new LinearLayoutManager(context);
+
+                                    recyclerView.setLayoutManager(manager2);
+                                    recyclerView.setAdapter(areaAdapter);
+                                    areaAdapter.notifyDataSetChanged();
+
+                                    areaAdapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
+                                        @Override
+                                        public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
+
+                                            mPresent.todayWeather(context,arealist.get(position).getName());//今日天气
+                                            mPresent.weatherForecast(context, arealist.get(position).getName());//天气预报
+                                            mPresent.lifeStyle(context, arealist.get(position).getName());//生活指数
+                                            liWindow.closePopupWindow();
+
+                                        }
+                                    });
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
     }
+
+    //点击事件
+    @OnClick(R.id.btn_city_select)
+    public void onViewClicked() {//显示城市弹窗
+        showCityWindow();
+    }
+
+
 
     /**
      * 权限请求框架
@@ -161,6 +349,18 @@ public class MainActivity extends MvpActivity<WeatherContract.WeatherPresenter> 
      */
     public LocationClient mLocationClient = null;
     private MyLocationListener myListener = new MyLocationListener();
+
+    private List<String> list;//字符串列表
+    private List<CityResponse> provinceList;//省列表数据
+    private List<CityResponse.CityBean> citylist;//市列表数据
+    private List<CityResponse.CityBean.AreaBean> arealist;//区/县列表数据
+    ProvinceAdapter provinceAdapter;//省数据适配器
+    CityAdapter cityAdapter;//市数据适配器
+    AreaAdapter areaAdapter;//县/区数据适配器
+    String provinceTitle;//标题
+    LiWindow liWindow;//自定义弹窗
+
+
 
     /**
      * 数据初始化 主线程，onCreate方法可以删除
@@ -214,6 +414,7 @@ public class MainActivity extends MvpActivity<WeatherContract.WeatherPresenter> 
     /**
      * 动态权限申请
      */
+    @SuppressLint("CheckResult")
     private void permissionRequest() {
         rxPermissions.request(Manifest.permission.ACCESS_FINE_LOCATION)
                 .subscribe(granted -> {

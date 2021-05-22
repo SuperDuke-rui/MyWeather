@@ -34,6 +34,9 @@ public interface ApiService {
     /**
      * 未来三天的天气预报
      * https://free-api.heweather.net/s6/weather/forecast?key=3086e91d66c04ce588a7f538f917c7f4&location=浦东新区
+     *
+     * @param location
+     * @return
      */
     @GET("/s6/weather/forecast?key=3086e91d66c04ce588a7f538f917c7f4")
     Call<WeatherForecastResponse> getWeatherForecast(@Query("location") String location);
@@ -41,6 +44,8 @@ public interface ApiService {
     /**
      * 生活指数
      * https://free-api.heweather.net/s6/weather/lifestyle?key=3086e91d66c04ce588a7f538f917c7f4&location=浦东新区
+     * @param location
+     * @return
      */
     @GET("/s6/weather/lifestyle?key=3086e91d66c04ce588a7f538f917c7f4")
     Call<LifeStyleResponse> getLifeStyle(@Query("location") String location);
