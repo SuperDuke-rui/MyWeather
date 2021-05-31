@@ -2,14 +2,22 @@ package com.android.myweather;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,20 +31,23 @@ import com.android.myweather.adapter.AreaAdapter;
 import com.android.myweather.adapter.CityAdapter;
 import com.android.myweather.adapter.ProvinceAdapter;
 import com.android.myweather.adapter.WeatherForecastAdapter;
-import com.android.myweather.bean.CityResponse;
-import com.android.myweather.bean.LifeStyleResponse;
-import com.android.myweather.bean.TodayResponse;
-import com.android.myweather.bean.WeatherForecastResponse;
+import com.android.myweather.bean.*;
 import com.android.myweather.contract.WeatherContract;
+import com.android.myweather.utils.HttpPostRequest;
 import com.android.myweather.utils.LiWindow;
 import com.android.myweather.utils.ToastUtils;
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
+import okhttp3.Call;
+import okhttp3.Callback;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -167,6 +178,34 @@ public class MainActivity extends MvpActivity<WeatherContract.WeatherPresenter> 
     Button btnCitySelect;
 
     /**
+     * 登录按钮
+     */
+    @BindView(R.id.btn_login)
+    Button btnLogin;
+
+
+    public void initView() {
+        //设置登录按钮的点击事件
+        btnLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(intent);
+            }
+        });
+    }
+
+    /**
+     * 绑定布局文件
+     *
+     * @return
+     */
+    @Override
+    public int getLayoutId() {
+        return R.layout.activity_main;
+    }
+
+    /**
      * 城市弹窗
      */
     private void showCityWindow() {
@@ -194,7 +233,8 @@ public class MainActivity extends MvpActivity<WeatherContract.WeatherPresenter> 
     private void initCityData(RecyclerView recyclerView,ImageView areaBack,ImageView cityBack,TextView windowTitle) {
         //初始化省数据 读取省数据并显示到列表中
         try {
-            InputStream inputStream = getResources().getAssets().open("City.txt");//读取数据
+            //读取数据
+            InputStream inputStream = getResources().getAssets().open("City.txt");
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
             StringBuffer stringBuffer = new StringBuffer();
             String lines = bufferedReader.readLine();
@@ -338,7 +378,6 @@ public class MainActivity extends MvpActivity<WeatherContract.WeatherPresenter> 
     }
 
 
-
     /**
      * 权限请求框架
      */
@@ -377,15 +416,6 @@ public class MainActivity extends MvpActivity<WeatherContract.WeatherPresenter> 
         permissionVersion();
     }
 
-    /**
-     * 绑定布局文件
-     *
-     * @return
-     */
-    @Override
-    public int getLayoutId() {
-        return R.layout.activity_main;
-    }
 
     /**
      * 绑定Presenter u
@@ -454,6 +484,7 @@ public class MainActivity extends MvpActivity<WeatherContract.WeatherPresenter> 
         super.onCreate(savedInstanceState);
         // TODO: add setContentView(...) invocation
         ButterKnife.bind(this);
+        initView();
     }
 
     /**
@@ -521,6 +552,7 @@ public class MainActivity extends MvpActivity<WeatherContract.WeatherPresenter> 
      *
      * @param response
      */
+    @SuppressLint("SetTextI18n")
     @Override
     public void getWeatherForecastResult(Response<WeatherForecastResponse> response) {
         if (("ok").equals(response.body().getHeWeather6().get(0).getStatus())) {
@@ -579,6 +611,7 @@ public class MainActivity extends MvpActivity<WeatherContract.WeatherPresenter> 
             ToastUtils.showShortToast(context, response.body().getHeWeather6().get(0).getStatus());
         }
     }
+
 
     /**
      * 数据请求失败返回

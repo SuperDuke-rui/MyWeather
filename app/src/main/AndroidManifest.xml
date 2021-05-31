@@ -2,19 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.android.myweather">
 
-    <!--用于进行网络定位-->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <!--用于访问GPS定位-->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <!--用于访问WIFI信息，WiFi信息用于网络定位-->
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <!--获取运营商信息，用于支持提供运营商信息相关的接口-->
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <!--用于获取WiFi的获取权限，WiFi信息用来进行网络定位-->
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
-    <!--写入扩展存储，向扩展卡写入数据，用于写入离线定位数据-->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <!--访问网络-->
+    <!-- 用于进行网络定位 -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/> <!-- 用于访问GPS定位 -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/> <!-- 用于访问WIFI信息，WiFi信息用于网络定位 -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/> <!-- 获取运营商信息，用于支持提供运营商信息相关的接口 -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/> <!-- 用于获取WiFi的获取权限，WiFi信息用来进行网络定位 -->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/> <!-- 写入扩展存储，向扩展卡写入数据，用于写入离线定位数据 -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/> <!-- 访问网络 -->
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
@@ -22,19 +16,28 @@
             android:allowBackup="true"
             android:icon="@mipmap/xxxhdpi_logo"
             android:label="@string/app_name"
-            android:roundIcon="@mipmap/ic_launcher_round"
             android:networkSecurityConfig="@xml/network_security_config"
+            android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:theme="@style/Theme.MyWeather">
+        <service
+                android:name=".service.AutoUpdateService"
+                android:enabled="true"
+                android:exported="true">
+        </service>
 
-        <!--百度定位服务-->
-        <service android:name="com.baidu.location.f"
-                 android:enabled="true"
-                 android:process=":remote"/>
+        <activity android:name=".RegisterActivity">
+        </activity>
+        <activity android:name=".LoginActivity">
+        </activity> <!-- 百度定位服务 -->
+        <service
+                android:name="com.baidu.location.f"
+                android:enabled="true"
+                android:process=":remote"/>
 
-        <meta-data android:name="com.baidu.lbsapi.API_KEY"
-                   android:value="ZTEGam2MRXzI5blRdtW3IzFsXFVYOGvL">
-        </meta-data>
+        <meta-data
+                android:name="com.baidu.lbsapi.API_KEY"
+                android:value="ZTEGam2MRXzI5blRdtW3IzFsXFVYOGvL"/>
 
         <activity android:name=".MainActivity">
             <intent-filter>

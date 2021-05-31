@@ -111,7 +111,6 @@ public class LiWindow {
     /**
      * 设置弹窗动画
      * @param animId
-     * @return showPopu
      */
     public LiWindow setAnim(int animId) {
         if (mPopupWindow != null) {
