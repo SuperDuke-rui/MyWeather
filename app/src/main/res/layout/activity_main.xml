@@ -95,7 +95,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"/>
                         <!--温度-->
-                        <LinearLayout
+                        <RelativeLayout
                                 android:gravity="top|center_horizontal"
                                 android:layout_marginTop="20dp"
                                 android:orientation="horizontal"
@@ -109,13 +109,14 @@
                                     android:textColor="#FFF"
                                     android:textSize="60sp" />
                             <TextView
+                                    android:layout_toRightOf="@+id/tv_temperature"
                                     android:layout_width="wrap_content"
                                     android:layout_height="match_parent"
                                     android:layout_marginTop="5dp"
                                     android:text="℃"
                                     android:textColor="#FFF"
                                     android:textSize="28sp" />
-                        </LinearLayout>
+                        </RelativeLayout>
 
                         <!--最高温和最低温-->
                         <TextView
@@ -126,14 +127,26 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"/>
                         <!--城市-->
-                        <TextView
-                                android:layout_marginTop="20dp"
+                        <LinearLayout
+                            android:gravity="center_horizontal"
+                            android:layout_marginTop="20dp"
+                            android:orientation="horizontal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+                            <TextView
                                 android:id="@+id/tv_city"
                                 android:textColor="#FFF"
-                                android:text="城市"
+                                android:text="定位中..."
                                 android:textSize="20sp"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"/>
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:id="@+id/iv_location"
+                                android:background="@drawable/location"
+                                android:layout_height="24dp"/>
+                        </LinearLayout>
                         <!--上一次更新时间-->
                         <TextView
                                 android:layout_marginTop="8dp"

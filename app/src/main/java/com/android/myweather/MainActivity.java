@@ -194,6 +194,14 @@ public class MainActivity extends MvpActivity<WeatherContract.WeatherPresenter> 
     SmartRefreshLayout refresh;
 
     /**
+     * 正在定位图标
+     */
+    @BindView(R.id.iv_location)
+    ImageView ivLocation;
+    /** 决定图标是否显示，true为显示，false为不显示 **/
+    private boolean flag = true;
+
+    /**
      * 记录当前的城市名称
      */
     private String districtName;
@@ -379,6 +387,9 @@ public class MainActivity extends MvpActivity<WeatherContract.WeatherPresenter> 
                                             mPresent.weatherForecast(context, district);//天气预报
                                             mPresent.lifeStyle(context, district);//生活指数
                                             liWindow.closePopupWindow();
+
+                                            flag = false;//切换城市不显示定位图标
+
                                             districtName = district;
 
                                         }
@@ -546,6 +557,13 @@ public class MainActivity extends MvpActivity<WeatherContract.WeatherPresenter> 
         if (response.body().getHeWeather6().get(0).getBasic() != null) {
             //显示数据
             tvTemperature.setText(response.body().getHeWeather6().get(0).getNow().getTmp());
+
+            if (flag){
+                ivLocation.setVisibility(View.VISIBLE); //显示定位图标
+            } else {
+                ivLocation.setVisibility(View.GONE); //不显示定位图标
+            }
+
             tvCity.setText(response.body().getHeWeather6().get(0).getBasic().getLocation());
             tvInfo.setText(response.body().getHeWeather6().get(0).getNow().getCond_txt());
             tvOldTime.setText(response.body().getHeWeather6().get(0).getUpdate().getLoc());
