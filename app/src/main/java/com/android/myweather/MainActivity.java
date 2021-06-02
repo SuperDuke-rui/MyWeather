@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
@@ -44,6 +45,9 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.scwang.smartrefresh.layout.SmartRefreshLayout;
+import com.scwang.smartrefresh.layout.api.RefreshLayout;
+import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import okhttp3.Call;
@@ -183,6 +187,16 @@ public class MainActivity extends MvpActivity<WeatherContract.WeatherPresenter> 
     @BindView(R.id.btn_login)
     Button btnLogin;
 
+    /**
+     * 刷新布局
+     */
+    @BindView(R.id.refresh)
+    SmartRefreshLayout refresh;
+
+    /**
+     * 记录当前的城市名称
+     */
+    private String districtName;
 
     public void initView() {
         //设置登录按钮的点击事件
@@ -192,6 +206,20 @@ public class MainActivity extends MvpActivity<WeatherContract.WeatherPresenter> 
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                 startActivity(intent);
             }
+        });
+
+        //下拉刷新
+        refresh.setOnRefreshListener(refreshLayout -> {
+            //获取今天的天气数据
+            mPresent.todayWeather(context,districtName);
+            //获取天气预报数据
+            mPresent.weatherForecast(context,districtName);
+            //获取生活指数
+            mPresent.lifeStyle(context,districtName);
+            //关闭刷新
+            refresh.finishRefresh();
+
+            Toast.makeText(context, "刷新成功", Toast.LENGTH_SHORT).show();
         });
     }
 
@@ -262,6 +290,7 @@ public class MainActivity extends MvpActivity<WeatherContract.WeatherPresenter> 
             provinceAdapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
                 @Override
                 public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
+
                     try {
                         //返回上一级数据
                         cityBack.setVisibility(View.VISIBLE);
@@ -345,11 +374,12 @@ public class MainActivity extends MvpActivity<WeatherContract.WeatherPresenter> 
                                     areaAdapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
                                         @Override
                                         public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
-
-                                            mPresent.todayWeather(context,arealist.get(position).getName());//今日天气
-                                            mPresent.weatherForecast(context, arealist.get(position).getName());//天气预报
-                                            mPresent.lifeStyle(context, arealist.get(position).getName());//生活指数
+                                            String district = arealist.get(position).getName();
+                                            mPresent.todayWeather(context,district);//今日天气
+                                            mPresent.weatherForecast(context, district);//天气预报
+                                            mPresent.lifeStyle(context, district);//生活指数
                                             liWindow.closePopupWindow();
+                                            districtName = district;
 
                                         }
                                     });
@@ -371,9 +401,9 @@ public class MainActivity extends MvpActivity<WeatherContract.WeatherPresenter> 
 
     }
 
-    //点击事件
+    //显示城市弹窗
     @OnClick(R.id.btn_city_select)
-    public void onViewClicked() {//显示城市弹窗
+    public void onViewClicked() {
         showCityWindow();
     }
 
@@ -501,6 +531,8 @@ public class MainActivity extends MvpActivity<WeatherContract.WeatherPresenter> 
             mPresent.weatherForecast(context, district);
             //获取生活指数数据
             mPresent.lifeStyle(context, district);
+
+            districtName = district;
         }
     }
 
@@ -612,12 +644,13 @@ public class MainActivity extends MvpActivity<WeatherContract.WeatherPresenter> 
         }
     }
 
-
     /**
      * 数据请求失败返回
      */
     @Override
     public void getDataFailed() {
+        //关闭刷新
+        refresh.finishRefresh();
         ToastUtils.showShortToast(context, "网络异常");
     }
 }

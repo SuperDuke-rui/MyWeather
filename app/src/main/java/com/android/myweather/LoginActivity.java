@@ -87,7 +87,7 @@ public class LoginActivity extends AppCompatActivity {
                         startActivity(intent);
 
                         Looper.prepare();
-                        Toast.makeText(LoginActivity.this, "登录成功！" , Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, "登录成功！用户：" + etLoginUsername.getText().toString() , Toast.LENGTH_SHORT).show();
                         Looper.loop();
 
                     }
